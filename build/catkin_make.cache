@@ -1,0 +1,2 @@
+polo_nono_pkg
+-DCATKIN_DEVEL_PREFIX=/home/etudiant/Bureau/robmob_ws/devel -DCMAKE_INSTALL_PREFIX=/home/etudiant/Bureau/robmob_ws/install -G Unix Makefiles

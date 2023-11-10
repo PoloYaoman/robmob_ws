@@ -1,0 +1,8 @@
+prefix=/home/etudiant/Bureau/robmob_ws/install
+
+Name: polo_nono_pkg
+Description: Description of polo_nono_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
