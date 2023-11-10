@@ -1,0 +1,2 @@
+minilab_model:minilab_simulation:pioneer3dx/pioneer3dx_description:teleop_pkg
+-DCATKIN_DEVEL_PREFIX=/home/etudiant/robmob_ws/devel -DCMAKE_INSTALL_PREFIX=/home/etudiant/robmob_ws/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/home/etudiant/robmob_ws/devel
+
+Name: teleop_pkg
+Description: Description of teleop_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
