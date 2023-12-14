@@ -11,7 +11,7 @@ class TeleopRobot:
         self.vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
         self.twist = Twist()
-        self.linear_speed = 1.0
+        self.linear_speed = 0.50
         self.angular_speed = 1.0
 
         self.key_listener = keyboard.Listener(on_press=self.on_key_press, on_release=self.on_key_release)
@@ -36,9 +36,9 @@ class TeleopRobot:
 
     def on_key_release(self, key):
         try:
-            if key.char == 'w' or key.char == 's':
+            if key.char == 'z' or key.char == 's':
                 self.twist.linear.x = 0.0
-            elif key.char == 'a' or key.char == 'd':
+            elif key.char == 'q' or key.char == 'd':
                 self.twist.angular.z = 0.0
         except AttributeError:
             pass

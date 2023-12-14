@@ -27,7 +27,7 @@
         <param name="range_max" value="inf"/>
     </node>
     
-    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" args="scan:=/scan_camera">
+    <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
 		<param name="delta" type="double" value="0.025" />
 		<param name="temporalUpdate" type="double" value="2.5" />
 		<param name="xmin" type="double" value="-5" />
