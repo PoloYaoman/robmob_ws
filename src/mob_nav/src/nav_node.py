@@ -1,8 +1,3 @@
-import rospy
-import roslib
-from nav_msgs import OccupancyGrid
-from nav_msgs import Odometry
-
 #!/usr/bin/env python
 
 import rospy
@@ -27,7 +22,7 @@ class NavNode:
         rospy.init_node('nav_node', anonymous=True)
 
         # Subscribers
-        rospy.Subscriber('/occupancy_grid', OccupancyGrid, self.occupancy_grid_callback)
+        rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
         rospy.Subscriber('/odom', Odometry, self.odom_callback)
 
         # Publisher
@@ -48,7 +43,18 @@ class NavNode:
         # Process occupancy grid data here
         rospy.loginfo("Received occupancy grid data")
 
-        self.grid = data.data
+        # Extract grid information
+        width = data.info.width
+        height = data.info.height
+        grid_tmp = data.data
+
+        # Convert 1D data array into a 2D array
+        self.grid = [[0 for _ in range(width)] for _ in range(height)]
+
+        for i in range(height):
+            for j in range(width):
+                index = i * width + j
+                self.grid[i][j] = grid_tmp[index]
 
     def odom_callback(self, data):
         # Process odometry data here
