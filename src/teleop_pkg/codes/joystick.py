@@ -11,8 +11,6 @@ def joystick_callback(data):
     twist.angular.z = data.axes[0]  # Utiliser l'axe horizontal pour la vélocité angulaire
 
     # Publier le message Twist sur le topic /cmd_vel
-    rospy.loginfo("twist linear:",twist.linear.x)
-    rospy.loginfo("twist angular:", twist.angular.z)
     pub.publish(twist)
 
 def joystick_listener():
