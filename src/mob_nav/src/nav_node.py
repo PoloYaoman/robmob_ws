@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 import rospy
-import roslib
-from nav_msgs import OccupancyGrid
-from nav_msgs import Odometry
-import rospy
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
