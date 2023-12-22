@@ -1,10 +1,8 @@
+#!/usr/bin/env python3
 import rospy
 import roslib
 from nav_msgs import OccupancyGrid
 from nav_msgs import Odometry
-
-#!/usr/bin/env python
-
 import rospy
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry
@@ -13,11 +11,11 @@ from geometry_msgs.msg import Twist
 from a_star import AStarPlanner
 
 
-GRID_SIZE = 5
+GRID_SIZE = 1
 ROBOT_RADIUS = 0.3
 
-GX = 50
-GY = 50
+GX = -13
+GY = -3
 
 K = 1
 
@@ -27,7 +25,7 @@ class NavNode:
         rospy.init_node('nav_node', anonymous=True)
 
         # Subscribers
-        rospy.Subscriber('/occupancy_grid', OccupancyGrid, self.occupancy_grid_callback)
+        rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
         rospy.Subscriber('/odom', Odometry, self.odom_callback)
 
         # Publisher
