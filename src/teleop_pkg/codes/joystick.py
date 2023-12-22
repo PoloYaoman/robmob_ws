@@ -2,16 +2,29 @@
 
 import rospy
 from sensor_msgs.msg import Joy
+from geometry_msgs.msg import Twist
 
 def joystick_callback(data):
-    rospy.loginfo("Axes: {}".format(data.axes))
-    rospy.loginfo("Buttons: {}".format(data.buttons))
+    # Créer un message Twist à partir des axes du joystick
+    twist = Twist()
+    twist.linear.x = data.axes[1]  # Utiliser l'axe vertical pour la vélocité linéaire
+    twist.angular.z = data.axes[0]  # Utiliser l'axe horizontal pour la vélocité angulaire
+
+    # Publier le message Twist sur le topic /cmd_vel
+    rospy.loginfo("twist linear:",twist.linear.x)
+    rospy.loginfo("twist angular:", twist.angular.z)
+    pub.publish(twist)
 
 def joystick_listener():
-    rospy.init_node('joystick_node', anonymous=True)
+    global pub
+    rospy.init_node('joystick_controller', anonymous=True)
 
-    rospy.loginfo("Joystick node is ready.")
+    # Créer un éditeur pour publier sur /cmd_vel
+    pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
 
+    rospy.loginfo("Joystick controller node is ready.")
+
+    # S'abonner au topic joy
     rospy.Subscriber("joy", Joy, joystick_callback)
 
     rospy.spin()

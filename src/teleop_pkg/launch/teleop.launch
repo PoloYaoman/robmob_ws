@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- Lancer gazebo -->
+    <include file="$(find minilab_simulation)/launch/minilab_simulation.launch"/>
+
+    <!-- Lancer la node de joystick-->
+    <node respawn="true" pkg="joy"
+        type="joy_node" name="turtle_launch_file" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+    </node>
+
+    <!-- Creation des axes-->
+    <param name="axis_linear" value="1" type="int"/>
+    <param name="axis_angular" value="0" type="int"/>
+    <param name="scale_linear" value="2" type="double"/>
+    <param name="scale_angular" value="2" type="double"/>
+    <node pkg="teleop_pkg" type="joystick.py" name="teleop"/>
+
+</launch>
