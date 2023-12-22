@@ -42,7 +42,18 @@ class NavNode:
         # Process occupancy grid data here
         rospy.loginfo("Received occupancy grid data")
 
-        self.grid = data.data
+        # Extract grid information
+        width = data.info.width
+        height = data.info.height
+        grid_tmp = data.data
+
+        # Convert 1D data array into a 2D array
+        self.grid = [[0 for _ in range(width)] for _ in range(height)]
+
+        for i in range(height):
+            for j in range(width):
+                index = i * width + j
+                self.grid[i][j] = grid_tmp[index]
 
     def odom_callback(self, data):
         # Process odometry data here
