@@ -8,11 +8,11 @@ from geometry_msgs.msg import Twist
 from a_star import AStarPlanner
 
 
-GRID_SIZE = 5
+GRID_SIZE = 1
 ROBOT_RADIUS = 0.3
 
-GX = 50
-GY = 50
+GX = -13
+GY = -3
 
 K = 1
 
