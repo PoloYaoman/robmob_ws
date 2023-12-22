@@ -103,7 +103,7 @@ class NavNode:
 
 if __name__ == '__main__':
     try:
-        your_node = YourNode()
+        your_node = NavNode()
         your_node.run()
     except rospy.ROSInterruptException:
         pass
