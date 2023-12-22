@@ -83,6 +83,11 @@ class NavNode:
         twist_msg.linear.x = v1
         twist_msg.linear.y = v2
 
+        self.vel.linear.x = v1
+        self.vel.linear.y = v2
+
+        self.path.pop(0)
+
         return twist_msg
 
     def get_path(self):
