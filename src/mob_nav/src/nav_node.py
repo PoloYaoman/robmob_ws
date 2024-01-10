@@ -6,6 +6,8 @@ from geometry_msgs.msg import Twist
 
 from a_star import AStarPlanner
 
+import numpy as np
+
 
 GRID_SIZE = 1
 ROBOT_RADIUS = 0.3
@@ -14,7 +16,7 @@ GX = -13
 GY = -3
 
 K = 1
-flag = True
+#flag = True
 
 
 class NavNode:
@@ -41,25 +43,35 @@ class NavNode:
 
     def occupancy_grid_callback(self, data):
         # Process occupancy grid data here
-        if flag:
+        #if flag:
 
-            rospy.loginfo("Received occupancy grid data")
+        rospy.loginfo("Received occupancy grid data")
 
-            # Extract grid information
-            width = data.info.width
-            height = data.info.height
-            grid_tmp = data.data
+        # Extract grid information
+        width = data.info.width
+        height = data.info.height
+        grid_tmp = data.data
 
-            # Convert 1D data array into a 2D array
-            self.grid = [[0 for _ in range(width)] for _ in range(height)]
+        # Convert 1D data array into a 2D array
+        self.grid = [[0 for _ in range(width)] for _ in range(height)]
 
-            for i in range(height):
-                for j in range(width):
-                    index = i * width + j
-                    self.grid[i][j] = grid_tmp[index]
+        for i in range(height):
+            for j in range(width):
+                index = i * width + j
+                self.grid[i][j] = grid_tmp[index]
+                if grid_tmp[index] > -1:
+                    rospy.loginfo("obstacle point!")
 
-            rospy.loginfo(self.grid)
-            flag = False
+        self.trim_edges()
+
+        #rospy.loginfo(self.grid)
+            #flag = False
+        
+    def trim_edges(self):
+        for row,i in enumerate(self.grid):
+            if np.max(row)<0:
+                self.grid = np.delete(self.grid, i, axis=0)
+        
 
     def odom_callback(self, data):
         # Process odometry data here

@@ -12,3 +12,8 @@ rosrun map_server map_saver -f nom_de_carte
 
 # Ou sauvegarder la carte au format YAML
 rosrun map_server map_saver -f nom_de_carte.yaml
+
+pour publier une map:
+rosrun map_server map_server nom_map.yaml
+
+voir les topic et &: rqt_graph
