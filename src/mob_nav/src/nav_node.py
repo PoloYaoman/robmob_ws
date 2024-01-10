@@ -14,6 +14,7 @@ GX = -13
 GY = -3
 
 K = 1
+flag = True
 
 
 class NavNode:
@@ -40,20 +41,25 @@ class NavNode:
 
     def occupancy_grid_callback(self, data):
         # Process occupancy grid data here
-        rospy.loginfo("Received occupancy grid data")
+        if flag:
 
-        # Extract grid information
-        width = data.info.width
-        height = data.info.height
-        grid_tmp = data.data
+            rospy.loginfo("Received occupancy grid data")
 
-        # Convert 1D data array into a 2D array
-        self.grid = [[0 for _ in range(width)] for _ in range(height)]
+            # Extract grid information
+            width = data.info.width
+            height = data.info.height
+            grid_tmp = data.data
 
-        for i in range(height):
-            for j in range(width):
-                index = i * width + j
-                self.grid[i][j] = grid_tmp[index]
+            # Convert 1D data array into a 2D array
+            self.grid = [[0 for _ in range(width)] for _ in range(height)]
+
+            for i in range(height):
+                for j in range(width):
+                    index = i * width + j
+                    self.grid[i][j] = grid_tmp[index]
+
+            rospy.loginfo(self.grid)
+            flag = False
 
     def odom_callback(self, data):
         # Process odometry data here
