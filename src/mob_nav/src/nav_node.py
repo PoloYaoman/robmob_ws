@@ -54,6 +54,7 @@ class NavNode:
         print("received map width : ", width)
         print("received map height : ", height)
         print("received map resolution : ", self.res)
+        rospy.loginfo("resolution",self.res)
 
         # Convert 1D data array into a 2D array
         self.grid = [[0 for _ in range(width)] for _ in range(height)]
