@@ -9,7 +9,6 @@ from a_star import AStarPlanner
 import numpy as np
 
 
-GRID_SIZE = 1
 ROBOT_RADIUS = 0.3
 
 GX = -13
@@ -44,8 +43,6 @@ class NavNode:
 
     def occupancy_grid_callback(self, data):
         # Process occupancy grid data here
-        #if flag:
-
         rospy.loginfo("Received occupancy grid data")
 
         # Extract grid information
@@ -61,13 +58,8 @@ class NavNode:
             for j in range(width):
                 index = i * width + j
                 self.grid[i][j] = grid_tmp[index]
-                #if grid_tmp[index] > -1:
-                    #rospy.loginfo("obstacle point!")
 
         self.trim_edges()
-
-        #rospy.loginfo(self.grid)
-            #flag = False
         
     def trim_edges(self):
         for row,i in enumerate(self.grid):
@@ -85,14 +77,14 @@ class NavNode:
 
         # Example: Publish a sample Twist message
         twist_msg = Twist()
-        # twist_msg.linear.x = 0.1  # Example linear velocity
-        # twist_msg.angular.z = 0.2  # Example angular velocity
 
         twist_msg = self.get_vel()
 
         self.vel_cmd_publisher.publish(twist_msg)
 
     def get_vel(self):
+        rospy.loginfo("Calculating velocity")
+
         if not self.path:
             self.get_path()
 
@@ -111,19 +103,21 @@ class NavNode:
         return twist_msg
 
     def get_path(self):
+        rospy.loginfo("Searching for a path")
+
         ox, oy = [], []
 
         for x,row in enumerate(self.grid):
             for y,column in enumerate(row):
                 if column > 0:
-                    ox.append(x)
-                    oy.append(y)
+                    ox.append(x*self.res)
+                    oy.append(y*self.res)
 
         a_star = AStarPlanner(ox, oy, self.res, ROBOT_RADIUS)
         rx, ry = a_star.planning(self.odom_x, self.odom_y, GX, GY)
 
-        for x,i in enumerate(rx):
-            self.path.append([x,ry[i]])
+        for x,y in zip(rx,ry):
+            self.path.append([x,y])
 
     def run(self):
         rate = rospy.Rate(10)  # 10 Hz

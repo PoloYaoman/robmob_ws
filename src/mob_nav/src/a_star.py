@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 
 show_animation = True
 
+CALC_RES = 1
+
 
 class AStarPlanner:
 
@@ -205,14 +207,19 @@ class AStarPlanner:
         # obstacle map generation
         self.obstacle_map = [[False for _ in range(self.y_width)]
                              for _ in range(self.x_width)]
-        for ix in range(self.x_width):
+        print("Generating obstacle map")
+        for ix in range(0,self.x_width,CALC_RES):
             x = self.calc_grid_position(ix, self.min_x)
-            for iy in range(self.y_width):
+            #print("...getting x coordinate")
+            for iy in range(0,self.y_width,CALC_RES):
                 y = self.calc_grid_position(iy, self.min_y)
+                #print("...getting y coordinate")
                 for iox, ioy in zip(ox, oy):
                     d = math.hypot(iox - x, ioy - y)
+                    #print("...finding distance")
                     if d <= self.rr:
                         self.obstacle_map[ix][iy] = True
+                        #print("...tracing obstacle")
                         break
 
     @staticmethod
