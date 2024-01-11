@@ -95,7 +95,15 @@ class NavNode:
             self.get_path()
 
         v1 = self.vel.linear.x - K * (self.path[0][0] - self.odom_x)
+        if v1 > 1:
+            v1 = 1
+        if v1 < -1:
+            v1 = -1
         v2 = self.vel.linear.y - K * (self.path[0][1] - self.odom_y)
+        if v2 > 1:
+            v2 = 1
+        if v1 < -1:
+            -1
 
         twist_msg = Twist()
         twist_msg.linear.x = v1
