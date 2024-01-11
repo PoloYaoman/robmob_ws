@@ -93,17 +93,9 @@ class NavNode:
         self.get_path()
 
         v1 = self.vel.linear.x - K * (self.path[5][0] - self.odom_x)
-        if v1 > 1:
-            v1 = 1
-        if v1 < -1:
-            v1 = -1
         v2 = self.vel.linear.y - K * (self.path[5][1] - self.odom_y)
 
         print("Calculated velocity : ", v1, v2)
-        if v2 > 1:
-            v2 = 1
-        if v1 < -1:
-            -1
 
         twist_msg = Twist()
         twist_msg.linear.x = v1
