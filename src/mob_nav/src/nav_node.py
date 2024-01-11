@@ -79,7 +79,7 @@ class NavNode:
         twist_msg = Twist()
 
         twist_msg = self.get_vel()
-
+        rospy.loginfo("twist :",twist_msg)
         self.vel_cmd_publisher.publish(twist_msg)
 
     def get_vel(self):
