@@ -10,12 +10,12 @@ import numpy as np
 
 
 ROBOT_RADIUS = 0.3
-RES = 1
+RES = 5
 
 GX = -13
 GY = -3
 
-K = 1
+K = 0.001
 #flag = True
 
 
@@ -42,6 +42,8 @@ class NavNode:
 
         self.vel = Twist()
 
+        self.grid_ready = False
+
     def occupancy_grid_callback(self, data):
         # Process occupancy grid data here
         rospy.loginfo("Received occupancy grid data")
@@ -61,15 +63,9 @@ class NavNode:
         for i in range(height):
             for j in range(width):
                 index = i * width + j
-                self.grid[i][j] = grid_tmp[index]
+                self.grid[i][j] = grid_tmp[index]        
 
-        self.trim_edges()
-        
-    def trim_edges(self):
-        for row,i in enumerate(self.grid):
-            if np.max(row)<0:
-                self.grid = np.delete(self.grid, i, axis=0)
-        
+        self.grid_ready = True
 
     def odom_callback(self, data):
         # Process odometry data here
@@ -84,18 +80,22 @@ class NavNode:
         # Example: Publish a sample Twist message
         twist_msg = Twist()
 
-        twist_msg = self.get_vel()
+        if self.grid_ready:
+          twist_msg = self.get_vel()
         rospy.loginfo("publishing velocity")
-        self.vel_cmd_publisher.publish(twist_msg)
+        # self.vel_cmd_publisher.publish(twist_msg)
+
+        #self.grid_ready = False
 
     def get_vel(self):
         rospy.loginfo("Calculating velocity")
 
-        if not self.path:
-            self.get_path()
+        self.get_path()
 
-        v1 = self.vel.linear.x - K * (self.path[0][0] - self.odom_x)
-        v2 = self.vel.linear.y - K * (self.path[0][1] - self.odom_y)
+        v1 = self.vel.linear.x - K * (self.path[5][0] - self.odom_x)
+        v2 = self.vel.linear.y - K * (self.path[5][1] - self.odom_y)
+
+        print("Calculated velocity : ", v1, v2)
 
         twist_msg = Twist()
         twist_msg.linear.x = v1
@@ -116,14 +116,16 @@ class NavNode:
         for x,row in enumerate(self.grid):
             for y,column in enumerate(row):
                 if column > 0:
-                    ox.append(x*self.res)
-                    oy.append(y*self.res)
+                    ox.append(y - 20/self.res)
+                    oy.append(x - 10/self.res)
 
         a_star = AStarPlanner(ox, oy, RES, ROBOT_RADIUS)
-        rx, ry = a_star.planning(self.odom_x, self.odom_y, GX, GY)
+        rx, ry = a_star.planning(self.odom_x / self.res, self.odom_y / self.res, GX / self.res, GY / self.res)
 
         for x,y in zip(rx,ry):
             self.path.append([x,y])
+
+        #print(self.path)
 
     def run(self):
         rate = rospy.Rate(10)  # 10 Hz

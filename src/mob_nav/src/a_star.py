@@ -65,6 +65,14 @@ class AStarPlanner:
             ry: y position list of the final path
         """
 
+        print("astar start position : ", sx, sy)
+        print("astar goal position : ", gx, gy)
+
+        if show_animation: 
+            plt.plot(sx, sy, "og")
+            plt.plot(gx, gy, "xb")
+
+
         start_node = self.Node(self.calc_xy_index(sx, self.min_x),
                                self.calc_xy_index(sy, self.min_y), 0.0, -1)
         goal_node = self.Node(self.calc_xy_index(gx, self.min_x),
@@ -131,6 +139,11 @@ class AStarPlanner:
 
         rx, ry = self.calc_final_path(goal_node, closed_set)
 
+        if show_animation:  # pragma: no cover
+            plt.plot(rx, ry, "-r")
+            plt.pause(0.001)
+            plt.show()
+
         return rx, ry
 
     def calc_final_path(self, goal_node, closed_set):
@@ -189,6 +202,10 @@ class AStarPlanner:
         return True
 
     def calc_obstacle_map(self, ox, oy):
+        if show_animation:  # pragma: no cover
+            plt.plot(ox, oy, ".k")
+            plt.grid(True)
+            plt.axis("equal")
 
         self.min_x = round(min(ox))
         self.min_y = round(min(oy))
