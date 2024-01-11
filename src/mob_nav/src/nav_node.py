@@ -32,6 +32,7 @@ class NavNode:
 
         # Initialize other variables or setup here
         self.grid = []
+        self.res = 1
 
         self.odom_x = 0.0
         self.odom_y = 0.0
@@ -50,6 +51,7 @@ class NavNode:
         # Extract grid information
         width = data.info.width
         height = data.info.height
+        self.res = data.info.resolution
         grid_tmp = data.data
 
         # Convert 1D data array into a 2D array
@@ -117,7 +119,7 @@ class NavNode:
                     ox.append(x)
                     oy.append(y)
 
-        a_star = AStarPlanner(ox, oy, GRID_SIZE, ROBOT_RADIUS)
+        a_star = AStarPlanner(ox, oy, self.res, ROBOT_RADIUS)
         rx, ry = a_star.planning(self.odom_x, self.odom_y, GX, GY)
 
         for x,i in enumerate(rx):
