@@ -50,6 +50,7 @@ class NavNode:
         height = data.info.height
         self.res = data.info.resolution
         grid_tmp = data.data
+        rospy.loginfo("resolution",self.res)
 
         # Convert 1D data array into a 2D array
         self.grid = [[0 for _ in range(width)] for _ in range(height)]
