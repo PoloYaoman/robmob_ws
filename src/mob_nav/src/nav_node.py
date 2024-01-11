@@ -10,6 +10,7 @@ import numpy as np
 
 
 ROBOT_RADIUS = 0.3
+RES = 1
 
 GX = -13
 GY = -3
@@ -50,6 +51,9 @@ class NavNode:
         height = data.info.height
         self.res = data.info.resolution
         grid_tmp = data.data
+        print("received map width : ", width)
+        print("received map height : ", height)
+        print("received map resolution : ", self.res)
 
         # Convert 1D data array into a 2D array
         self.grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -75,11 +79,13 @@ class NavNode:
         self.odom_y = data.pose.pose.position.y 
         self.odom_rz = data.pose.pose.orientation.w
 
+        print("Received position : ", self.odom_x, self.odom_y)
+
         # Example: Publish a sample Twist message
         twist_msg = Twist()
 
         twist_msg = self.get_vel()
-        rospy.loginfo("twist :",twist_msg)
+        rospy.loginfo("publishing velocity")
         self.vel_cmd_publisher.publish(twist_msg)
 
     def get_vel(self):
@@ -113,7 +119,7 @@ class NavNode:
                     ox.append(x*self.res)
                     oy.append(y*self.res)
 
-        a_star = AStarPlanner(ox, oy, self.res, ROBOT_RADIUS)
+        a_star = AStarPlanner(ox, oy, RES, ROBOT_RADIUS)
         rx, ry = a_star.planning(self.odom_x, self.odom_y, GX, GY)
 
         for x,y in zip(rx,ry):
