@@ -59,8 +59,8 @@ class NavNode:
             for j in range(width):
                 index = i * width + j
                 self.grid[i][j] = grid_tmp[index]
-                if grid_tmp[index] > -1:
-                    rospy.loginfo("obstacle point!")
+                #if grid_tmp[index] > -1:
+                    #rospy.loginfo("obstacle point!")
 
         self.trim_edges()
 
@@ -120,8 +120,8 @@ class NavNode:
         a_star = AStarPlanner(ox, oy, GRID_SIZE, ROBOT_RADIUS)
         rx, ry = a_star.planning(self.odom_x, self.odom_y, GX, GY)
 
-        for x,y in rx,ry:
-            self.path.append([x,y])
+        for x,i in enumerate(rx):
+            self.path.append([x,ry[i]])
 
     def run(self):
         rate = rospy.Rate(10)  # 10 Hz
