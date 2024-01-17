@@ -12,6 +12,7 @@ See Wikipedia article (https://en.wikipedia.org/wiki/A*_search_algorithm)
 import math
 
 import matplotlib.pyplot as plt
+import time
 
 show_animation = True
 
@@ -29,6 +30,9 @@ class AStarPlanner:
         resolution: grid resolution [m]
         rr: robot radius[m]
         """
+
+        #plt.clf()
+        plt.switch_backend('SVG')
 
         self.resolution = resolution
         self.rr = rr
@@ -64,6 +68,7 @@ class AStarPlanner:
             rx: x position list of the final path
             ry: y position list of the final path
         """
+        # plt.clf()
 
         print("astar start position : ", sx, sy)
         print("astar goal position : ", gx, gy)
@@ -118,6 +123,8 @@ class AStarPlanner:
 
             # expand_grid search grid based on motion model
             for i, _ in enumerate(self.motion):
+                start_time = time.time()
+
                 node = self.Node(current.x + self.motion[i][0],
                                  current.y + self.motion[i][1],
                                  current.cost + self.motion[i][2], c_id)
@@ -136,6 +143,11 @@ class AStarPlanner:
                     if open_set[n_id].cost > node.cost:
                         # This path is the best until now. record it
                         open_set[n_id] = node
+
+                elapsed_time = time.time() - start_time
+                if elapsed_time > 15:
+                    print("Time limit exceeded on path finding")
+                    # break
 
         rx, ry = self.calc_final_path(goal_node, closed_set)
 

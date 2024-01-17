@@ -7,9 +7,10 @@ from geometry_msgs.msg import Twist
 from a_star import AStarPlanner
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
-ROBOT_RADIUS = 0.3
+ROBOT_RADIUS = 2
 RES = 5
 
 GX = -13
@@ -45,6 +46,8 @@ class NavNode:
         self.grid_ready = False
 
     def occupancy_grid_callback(self, data):
+        self.grid_ready = False
+
         # Process occupancy grid data here
         rospy.loginfo("Received occupancy grid data")
 
@@ -65,7 +68,12 @@ class NavNode:
                 index = i * width + j
                 self.grid[i][j] = grid_tmp[index]        
 
-        self.grid_ready = True
+        self.get_path()
+        if len(self.path) > 0:
+            #print(self.path)
+            plt.clf()
+            plt.scatter(self.path[0],self.path[1])
+            self.grid_ready = True
 
     def odom_callback(self, data):
         # Process odometry data here
@@ -90,10 +98,12 @@ class NavNode:
     def get_vel(self):
         rospy.loginfo("Calculating velocity")
 
-        self.get_path()
+        v1 = 0
+        v2 = 0
 
-        v1 = self.vel.linear.x - K * (self.path[5][0] - self.odom_x)
-        v2 = self.vel.linear.y - K * (self.path[5][1] - self.odom_y)
+        if len(self.path)>5:
+            v1 = self.vel.linear.x - K * (self.path[0][5] - self.odom_x)
+            v2 = self.vel.linear.y - K * (self.path[1][5] - self.odom_y)
 
         print("Calculated velocity : ", v1, v2)
 
@@ -104,7 +114,8 @@ class NavNode:
         self.vel.linear.x = v1
         self.vel.linear.y = v2
 
-        self.path.pop(0)
+        if len(self.path)>0 and abs(self.odom_x-self.path[0][5])<0.001 and abs(self.odom_y-self.path[1][5])<0.001:
+            self.path.pop(0)
 
         return twist_msg
 
@@ -119,11 +130,14 @@ class NavNode:
                     ox.append(y - 20/self.res)
                     oy.append(x - 10/self.res)
 
-        a_star = AStarPlanner(ox, oy, RES, ROBOT_RADIUS)
-        rx, ry = a_star.planning(self.odom_x / self.res, self.odom_y / self.res, GX / self.res, GY / self.res)
+        plt.scatter(ox,oy)
 
-        for x,y in zip(rx,ry):
-            self.path.append([x,y])
+        if len(ox)>0 and len(oy)>0:
+            a_star = AStarPlanner(ox, oy, RES, ROBOT_RADIUS)
+            rx, ry = a_star.planning(self.odom_x / self.res, self.odom_y / self.res, GX / self.res, GY / self.res)
+
+            for x,y in zip(rx,ry):
+                self.path.append([x,y])
 
         #print(self.path)
 
