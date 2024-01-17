@@ -10,7 +10,7 @@ import numpy as np
 
 
 ROBOT_RADIUS = 0.3
-RES = 5
+RES = 0.05
 
 GX = -13
 GY = -3
