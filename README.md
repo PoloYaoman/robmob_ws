@@ -26,3 +26,5 @@ on à la translation et la rotation
 tf_listener pour recuperer la transformée entre map et base_link(robot)
 ensuite on utilise le passage de map à la grille d'occupation
 on peut faire les déplacements comme ça
+
+ME RESTE A TROUVER COMMENT RECUPERER LA MAP AVEC LE BON TIME STAMP ET OK!

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import roslib
 import rospy
 import math
 import tf
@@ -23,6 +22,8 @@ K = 0.001
 class NavNode:
     def __init__(self):
         rospy.init_node('navigation', anonymous=True)
+        #Listener
+        self.listener = tf.TransformListener()
 
         # Subscribers
         rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
@@ -32,11 +33,19 @@ class NavNode:
 
         # Publisher
         self.vel_cmd_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        
 
         # Initialize other variables or setup here
         self.grid = []
         self.res = 1
-        self.origin = []
+
+        #position de l'origine de la map
+        self.origin_pos = []
+        self.origin_rot = []
+
+        #transformée de base_link à map
+        self.tf_trans = []
+        self.tf_rot
 
         self.odom_x = 0.0
         self.odom_y = 0.0
@@ -56,12 +65,14 @@ class NavNode:
         width = data.info.width
         height = data.info.height
         self.res = data.info.resolution
-        self.origin = data.info.origin
+        self.origin_pos = data.info.origin.position
+        self.origin_rot = data.info.origin.orientation
         grid_tmp = data.data
         print("received map width : ", width)
         print("received map height : ", height)
         print("received map resolution : ", self.res)
-        print("Origine \n", self.origin)
+        print("Origine_pos\n", self.origin_pos)
+        print("Origine_rot\n", self.origin_rot)
 
         # Convert 1D data array into a 2D array
         self.grid = [[0 for _ in range(width)] for _ in range(height)]
@@ -72,6 +83,11 @@ class NavNode:
                 self.grid[i][j] = grid_tmp[index]        
 
         self.grid_ready = True
+        (self.tf_trans,self.tf_rot) = self.listener.lookupTransform('/base_link', '/map', rospy.Time(0))
+        print("tf_trans", self.tf_trans)
+        print("tf_rot", self.tf_rot)
+
+
 
     def odom_callback(self, data):
         # Process odometry data here
