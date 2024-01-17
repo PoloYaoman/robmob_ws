@@ -17,3 +17,14 @@ pour publier une map:
 rosrun map_server map_server nom_map.yaml
 
 voir les topic et &: rqt_graph
+
+map_metadata: recuperer l'origine de la carte dans le tableau (a voir dans la doc car non sûr)
+
+-->
+on peut recuperer la transformée de l'origine de l'occupancygrid à la map à l'aide de la map_metadata
+on à la translation et la rotation
+tf_listener pour recuperer la transformée entre map et base_link(robot)
+ensuite on utilise le passage de map à la grille d'occupation
+on peut faire les déplacements comme ça
+
+ME RESTE A TROUVER COMMENT RECUPERER LA MAP AVEC LE BON TIME STAMP ET OK!
