@@ -2,7 +2,7 @@
 import rospy
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Pose
 
 #from a_star import AStarPlanner
 
@@ -10,17 +10,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import math
+import time
 
 
 
 GRID_SIZE = 1
-CALC_RES = 6
+CALC_RES = 8
 ROBOT_RADIUS = 10
 
 GX = -13
 GY = -3
 
-K = 1
+K = 0.01
 
 show_animation = True
 
@@ -34,8 +35,10 @@ class NavNode:
         rospy.Subscriber('/odom', Odometry, self.odom_callback)
 
         # Publisher
-        self.vel_cmd_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        self.vel_cmd_publisher = rospy.Publisher('/cmd_vel_op', Twist, queue_size=10)
         self.timer = rospy.Timer(rospy.Duration(0.01), self.timer_callback)
+
+        self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
 
         # Initialize other variables or setup here
         self.grid = []
@@ -52,10 +55,12 @@ class NavNode:
         self.odom_x = 0.0
         self.odom_y = 0.0
         self.odom_rz = 0.0
-
-        self.path = []
+        self.odom_time = rospy.get_rostime()
 
         self.vel = Twist()
+
+        self.rx = []
+        self.ry = []
 
     class Node_:
         cost = 0
@@ -77,13 +82,13 @@ class NavNode:
         rospy.loginfo("Entering timer callback")
         # Example: Publish a sample Twist message
         twist_msg = Twist()
-        # twist_msg.linear.x = 0.1  # Example linear velocity
-        # twist_msg.angular.z = 0.2  # Example angular velocity
+        twist_msg.linear.x = 0
+        twist_msg.linear.y = 0
 
         if len(self.grid)>0:
             twist_msg = self.main_planning()
 
-        #self.vel_cmd_publisher.publish(twist_msg)
+        self.vel_cmd_publisher.publish(twist_msg)
         rospy.loginfo("Exiting timer callback")
 
     def occupancy_grid_callback(self, data):
@@ -108,11 +113,27 @@ class NavNode:
 
     def odom_callback(self, data):
         # Process odometry data here
-        rospy.loginfo("Received odometry data")
+        # rospy.loginfo("Received odometry data")
+        now = rospy.get_rostime()
+        odom_x = data.pose.pose.position.x 
+        odom_y = data.pose.pose.position.y 
 
-        self.odom_x = data.pose.pose.position.x 
-        self.odom_y = data.pose.pose.position.y 
+        if self.odom_time.secs > 0:
+            self.vel.linear.x = (odom_x - self.odom_x) / (self.odom_time.secs)
+            self.vel.linear.x = (odom_y - self.odom_y) / (self.odom_time.secs)
+
+        self.odom_x = odom_x
+        self.odom_y = odom_y
         self.odom_rw = data.pose.pose.orientation.w
+
+        pose_msg = Pose()
+        pose_msg.position.x = odom_x 
+        pose_msg.position.y = odom_y 
+        pose_msg.orientation.z = data.pose.pose.orientation.z
+        pose_msg.orientation.w = self.odom_rw 
+        self.pose_publisher.publish(pose_msg)
+
+        self.odom_time = rospy.get_rostime() - now
 
     def main_planning(self):
         rospy.loginfo("Entering main planning")
@@ -157,14 +178,21 @@ class NavNode:
             plt.grid(True)
             plt.axis("equal")
 
-        rx, ry = self.planning(sx, sy, gx, gy)
+        if len(self.rx) <= 1:
+           self.rx, self.ry = self.planning(sx, sy, gx, gy)
 
         v1 = 0
         v2 = 0
 
-        if len(rx)>0:
-            v1 = self.vel.linear.x - K * (rx[0] - self.odom_x)
-            v2 = self.vel.linear.y - K * (ry[0] - self.odom_y)
+        if len(self.rx)>1:
+            print("Path length: ", len(self.rx))
+
+            v1 = self.vel.linear.x - K * (self.rx[0]*self.res - self.odom_x)
+            v2 = self.vel.linear.y - K * (self.ry[0]*self.res - self.odom_y)
+
+            if v1>20 or v2>20:
+                v1 = 0
+                v2 = 0
 
         print("Calculated velocity : ", v1, v2)
 
@@ -172,11 +200,9 @@ class NavNode:
         twist_msg.linear.x = v1
         twist_msg.linear.y = v2
 
-        self.vel.linear.x = v1
-        self.vel.linear.y = v2
-
-        if len(rx)>0 and abs(self.odom_x-rx[0])<1 and abs(self.odom_y-ry[0])<1:
-            self.path.pop(0)
+        if len(self.rx)>0 and abs(self.odom_x-self.rx[0])<0.1 and abs(self.odom_y-self.ry[0])<0.1:
+            self.rx.pop(0)
+            self.ry.pop(0)
 
         return twist_msg
     
