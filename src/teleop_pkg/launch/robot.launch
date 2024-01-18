@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- Lancer le robot -->
-    <include file="$(find minilab_simulation)/launch/minilab_simulation.launch"/> A MODIFIER APRES LES TESTS
-
     <!-- Lancer la node de joystick-->
     <node respawn="true" pkg="joy"
         type="joy_node" name="turtle_launch_file" >
