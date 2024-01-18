@@ -28,13 +28,13 @@ class VelNode:
         cmd_y = data.linear.y 
 
         r = math.sqrt(cmd_x**2 + cmd_y**2)
-        theta = math.atan2(cmd_y,cmd_x)
+        w = cmd_y / (r*math.cos(self.theta))
 
         twist_msg = Twist()
         twist_msg.linear.x = r 
-        twist_msg.angular.z = self.theta - theta
+        twist_msg.angular.z = w
 
-        print("Robot orientation: ", self.theta, "Cmd orientation: ", theta)
+        print("Robot orientation: ", self.theta)
         print("x speed = ", r, "theta speed = ", twist_msg.angular.z)
 
         self.vel_publisher.publish(twist_msg)
@@ -47,9 +47,9 @@ class VelNode:
         rw = data.orientation.w
 
         if rz<0:
-            self.theta = -2*math.acos(rw)
+            self.theta = -2*math.acos(rw) - math.pi/2
         else:
-            self.theta = 2*math.acos(rz)
+            self.theta = 2*math.acos(rz) - math.pi/2
 
 if __name__ == '__main__':
     try:

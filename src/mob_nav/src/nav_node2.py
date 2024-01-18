@@ -16,7 +16,7 @@ import time
 
 GRID_SIZE = 1
 CALC_RES = 8
-ROBOT_RADIUS = 10
+ROBOT_RADIUS = 15
 
 GX = -13
 GY = -3
