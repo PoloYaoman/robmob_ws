@@ -21,7 +21,7 @@ ROBOT_RADIUS = 15
 GX = -13
 GY = -3
 
-K = 0.01
+K = 0.1
 
 show_animation = True
 
@@ -115,8 +115,8 @@ class NavNode:
         # Process odometry data here
         # rospy.loginfo("Received odometry data")
         now = rospy.get_rostime()
-        odom_x = data.pose.pose.position.x 
-        odom_y = data.pose.pose.position.y 
+        odom_y = data.pose.pose.position.x 
+        odom_x = - data.pose.pose.position.y 
 
         if self.odom_time.secs > 0:
             self.vel.linear.x = (odom_x - self.odom_x) / (self.odom_time.secs)
@@ -178,17 +178,23 @@ class NavNode:
             plt.grid(True)
             plt.axis("equal")
 
-        if len(self.rx) <= 1:
-           self.rx, self.ry = self.planning(sx, sy, gx, gy)
+        if len(self.rx) <= 2:
+            self.rx, self.ry = self.planning(sx, sy, gx, gy)
+            self.rx.reverse()
+            self.ry.reverse()
+            print([x*self.res for x in self.rx[0:10]])
+            print([y*self.res for y in self.ry[0:10]])
 
         v1 = 0
         v2 = 0
 
         if len(self.rx)>1:
             print("Path length: ", len(self.rx))
+            # print([x*self.res for x in self.rx[0:10]])
+            # print([y*self.res for y in self.ry[0:10]])
 
-            v1 = self.vel.linear.x - K * (self.rx[0]*self.res - self.odom_x)
-            v2 = self.vel.linear.y - K * (self.ry[0]*self.res - self.odom_y)
+            v1 = self.vel.linear.x + K * (self.rx[1]*self.res - self.odom_x)
+            v2 = self.vel.linear.y + K * (self.ry[1]*self.res - self.odom_y)
 
             if v1>20 or v2>20:
                 v1 = 0
@@ -199,8 +205,19 @@ class NavNode:
         twist_msg = Twist()
         twist_msg.linear.x = v1
         twist_msg.linear.y = v2
+        
+        dist_x = 100
+        dist_y = 100
 
-        if len(self.rx)>0 and abs(self.odom_x-self.rx[0])<0.1 and abs(self.odom_y-self.ry[0])<0.1:
+        if len(self.rx)>1:
+            dist_x = abs(self.odom_x-self.rx[1]*self.res)
+            dist_y = abs(self.odom_y-self.ry[1]*self.res)
+
+            print("Current pose: ", self.odom_x, self.odom_y)
+            print("Target pose: ", self.rx[1]*self.res, self.ry[1]*self.res)
+            print("Distance to next target: ",dist_x, dist_y)
+
+        if len(self.rx)>0 and dist_x<0.1 and dist_y<0.1:
             self.rx.pop(0)
             self.ry.pop(0)
 
