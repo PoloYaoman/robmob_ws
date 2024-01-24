@@ -10,8 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-ROBOT_RADIUS = 2
-RES = 5
+ROBOT_RADIUS = 10
+RES = 20
 
 GX = -13
 GY = -3
@@ -42,6 +42,8 @@ class NavNode:
         self.path = []
 
         self.vel = Twist()
+        self.vel.linear.x = 0
+        self.vel.linear.y = 0
 
         self.grid_ready = False
 
@@ -77,7 +79,7 @@ class NavNode:
 
     def odom_callback(self, data):
         # Process odometry data here
-        rospy.loginfo("Received odometry data")
+        # rospy.loginfo("Received odometry data")
 
         self.odom_x = data.pose.pose.position.x 
         self.odom_y = data.pose.pose.position.y 
@@ -101,9 +103,10 @@ class NavNode:
         v1 = 0
         v2 = 0
 
-        if len(self.path)>5:
-            v1 = self.vel.linear.x - K * (self.path[0][5] - self.odom_x)
-            v2 = self.vel.linear.y - K * (self.path[1][5] - self.odom_y)
+        if len(self.path)>0:
+            rospy.loginfo("Path not empty")
+            v1 = self.vel.linear.x - K * (self.path[0][0]*self.res - self.odom_x)
+            v2 = self.vel.linear.y - K * (self.path[1][0]*self.res - self.odom_y)
 
         print("Calculated velocity : ", v1, v2)
 
@@ -114,8 +117,9 @@ class NavNode:
         self.vel.linear.x = v1
         self.vel.linear.y = v2
 
-        if len(self.path)>0 and abs(self.odom_x-self.path[0][5])<0.001 and abs(self.odom_y-self.path[1][5])<0.001:
-            self.path.pop(0)
+        if len(self.path)>0 and abs(self.odom_x-self.path[0][0])<0.001 and abs(self.odom_y-self.path[1][0])<0.001:
+            self.path[0].pop(0)
+            self.path[1].pop(0)
 
         return twist_msg
 
