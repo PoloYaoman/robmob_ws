@@ -6,7 +6,7 @@ from std_msgs.msg import String
 
 import math
 
-K = 0.01
+K = 1
 
 class VelNode:
     def __init__(self):
@@ -28,28 +28,32 @@ class VelNode:
         cmd_y = data.linear.y 
 
         r = math.sqrt(cmd_x**2 + cmd_y**2)
-        w = cmd_y / (r*math.cos(self.theta))
+        w = math.atan2(cmd_y, cmd_x) - math.pi/2
 
         twist_msg = Twist()
         twist_msg.linear.x = r 
-        twist_msg.angular.z = w
+        twist_msg.angular.z = w - self.theta
 
+        print("Received command : ", cmd_x, cmd_y)
         print("Robot orientation: ", self.theta)
+        print("cmd orientation: ", w)
         print("x speed = ", r, "theta speed = ", twist_msg.angular.z)
 
-        self.vel_publisher.publish(twist_msg)
+        # self.vel_publisher.publish(twist_msg)
 
     def pose_callback(self, data):
         self.x = data.position.x 
         self.y = data.position.y
 
-        rz = data.orientation.z 
+        # rz = data.orientation.z 
         rw = data.orientation.w
 
-        if rz<0:
-            self.theta = -2*math.acos(rw) - math.pi/2
-        else:
-            self.theta = 2*math.acos(rz) - math.pi/2
+        # if rz<0:
+        #     self.theta = -2*math.acos(rw) - math.pi/2
+        # else:
+        #     self.theta = 2*math.acos(rz) - math.pi/2
+
+        self.theta = -rw + math.pi/4
 
 if __name__ == '__main__':
     try:
