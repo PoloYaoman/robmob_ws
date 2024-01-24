@@ -19,12 +19,21 @@ rosrun map_server map_server nom_map.yaml
 voir les topic et &: rqt_graph
 
 map_metadata: recuperer l'origine de la carte dans le tableau (a voir dans la doc car non sûr)
+# IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+APT UPDATE
+APT UPGRADE -Y
+APT INSTALL PYTHON3-TK -Y
+# IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
--->
-on peut recuperer la transformée de l'origine de l'occupancygrid à la map à l'aide de la map_metadata
-on à la translation et la rotation
-tf_listener pour recuperer la transformée entre map et base_link(robot)
-ensuite on utilise le passage de map à la grille d'occupation
-on peut faire les déplacements comme ça
+ROBOT IRL:
+Se connecter au wifi du robot
+connexion en ssh au robot: user@192.168.0.200
+mot de passe : #user
 
-ME RESTE A TROUVER COMMENT RECUPERER LA MAP AVEC LE BON TIME STAMP ET OK!
+nano ~/.bashrc
+export ROS_MASTER_URI=http://192.168.0.200:11311
+export ROS_IP=192.168.0.100
+
+lancer dans le robot: roslaunch minilab_launch minilab_driver_hokuyo.launch
+lancer dans le docker: roslaunch teleop_pkg robot.launch
+have fun
