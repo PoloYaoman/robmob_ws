@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import rospy
 from nav_msgs.msg import OccupancyGrid
-from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist, Pose
+from nav_msgs.msg import Odometry, Path
+from geometry_msgs.msg import Twist, Pose, PoseStamped
 
 #from a_star import AStarPlanner
 
@@ -39,6 +39,7 @@ class NavNode:
         self.timer = rospy.Timer(rospy.Duration(0.01), self.timer_callback)
 
         self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
+        self.path_publisher = rospy.Publisher('/path', Path, queue_size=10)
 
         # Initialize other variables or setup here
         self.grid = []
@@ -180,10 +181,23 @@ class NavNode:
 
         if len(self.rx) <= 2:
             self.rx, self.ry = self.planning(sx, sy, gx, gy)
+
             self.rx.reverse()
             self.ry.reverse()
-            print([x*self.res for x in self.rx[0:10]])
-            print([y*self.res for y in self.ry[0:10]])
+
+            self.rx = [x*self.res for x in self.rx]
+            self.ry = [y*self.res for y in self.ry]
+
+            path_msg = Path()
+            for x,y in zip(self.rx,self.ry):
+                pose_msg_tmp = PoseStamped()
+                pose_msg_tmp.pose.position.x = x
+                pose_msg_tmp.pose.position.y = y
+                path_msg.poses.append(pose_msg_tmp)
+
+                path_msg.header.frame_id= "/map"
+            
+            self.path_publisher.publish(path_msg)
 
         v1 = 0
         v2 = 0

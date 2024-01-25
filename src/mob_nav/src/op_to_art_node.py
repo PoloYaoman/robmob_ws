@@ -51,9 +51,9 @@ class VelNode:
         # if rz<0:
         #     self.theta = -2*math.acos(rw) - math.pi/2
         # else:
-        #     self.theta = 2*math.acos(rz) - math.pi/2
+        #     self.theta = 2*math.acos(rw) - math.pi/2
 
-        self.theta = -rw + math.pi/4
+        self.theta = -rw
 
 if __name__ == '__main__':
     try:
