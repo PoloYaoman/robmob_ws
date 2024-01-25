@@ -13,6 +13,9 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:
             (trans,rot) = listener.lookupTransform('/base_link', '/map', rospy.Time(0))
+            rospy.sleep(2)
+            print("translation : \n",trans)
+            print("rotation : \n",rot)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
     #Translation en [x,y,z]
