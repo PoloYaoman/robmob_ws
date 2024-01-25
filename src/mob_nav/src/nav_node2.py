@@ -90,7 +90,7 @@ class NavNode:
                 self.cost) + "," + str(self.parent_index)
 
     def timer_callback(self,timer):
-        rospy.loginfo("Entering timer callback")
+        #rospy.loginfo("Entering timer callback")
         # Example: Publish a sample Twist message
         twist_msg = Twist()
         twist_msg.linear.x = 0
@@ -100,11 +100,11 @@ class NavNode:
             twist_msg = self.main_planning()
 
         self.vel_cmd_publisher.publish(twist_msg)
-        rospy.loginfo("Exiting timer callback")
+        #rospy.loginfo("Exiting timer callback")
 
     def occupancy_grid_callback(self, data):
         # Process occupancy grid data here
-        rospy.loginfo("Received occupancy grid data")
+        #rospy.loginfo("Received occupancy grid data")
 
         # Extract grid information
         self.og_width = data.info.width
