@@ -17,10 +17,10 @@ if __name__ == '__main__':
             tx = trans[0]
             ty = trans[1]
             tz = trans[2]
-            rw = rot[3]
-            
+            (roll,pitch,yaw) = tf.transformations.euler_from_quaternion(rot)
+            deg_yaw = yaw*180/math.pi
             print("translation : \n sur x:",tx, "\n sur y:",ty,"\n sur z", tz)
-            print("rotation : \n",rw)
+            print("rotation en deg: \n",deg_yaw)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
     #Translation en [x,y,z]
