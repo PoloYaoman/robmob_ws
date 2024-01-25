@@ -3,6 +3,7 @@
 import rospy
 from geometry_msgs.msg import Twist, Pose
 from std_msgs.msg import String
+import tf
 
 import math
 
@@ -17,6 +18,8 @@ class VelNode:
         rospy.Subscriber('/cmd_vel_op', Twist, self.cmd_callback)
         rospy.Subscriber('/c_pose', Pose, self.pose_callback)
 
+        self.tf_listener = tf.TransformListener()
+
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
@@ -28,35 +31,49 @@ class VelNode:
         cmd_y = data.linear.y 
 
         r = math.sqrt(cmd_x**2 + cmd_y**2)
-        w = math.atan2(cmd_y, cmd_x) - math.pi/2
+        w_tmp = math.atan2(cmd_y, cmd_x) 
+        w = w_tmp - self.theta
+        if w>math.pi:
+            w = math.pi - w
+        elif w<-math.pi:
+            w = -math.pi - w
 
         twist_msg = Twist()
         twist_msg.linear.x = r 
-        twist_msg.angular.z = w - self.theta
+        twist_msg.angular.z = w
 
         print("Received command : ", cmd_x, cmd_y)
         print("Robot orientation: ", self.theta)
-        print("cmd orientation: ", w)
+        print("cmd orientation: ", w_tmp)
         print("x speed = ", r, "theta speed = ", twist_msg.angular.z)
 
-        # self.vel_publisher.publish(twist_msg)
+        self.vel_publisher.publish(twist_msg)
 
     def pose_callback(self, data):
         self.x = data.position.x 
         self.y = data.position.y
 
         # rz = data.orientation.z 
-        rw = data.orientation.w
+        self.theta = data.orientation.w
 
-        # if rz<0:
-        #     self.theta = -2*math.acos(rw) - math.pi/2
+        # if self.rz<0:
+        #     self.theta = -2*math.acos(self.rw) - math.pi
         # else:
-        #     self.theta = 2*math.acos(rw) - math.pi/2
+        #     self.theta = 2*math.acos(self.rw) - math.pi
 
-        self.theta = -rw
+        # (trans,rot) = self.tf_listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+        # (roll,pitch,yaw) = tf.transformations.euler_from_quaternion(rot)
+
+        # if yaw > math.pi:
+        #     yaw = yaw%math.pi
+        # elif yaw < - math.pi:
+        #     yaw = -yaw%math.pi
+
+        # self.theta = yaw
 
 if __name__ == '__main__':
     try:
         vel_node = VelNode()
+        
     except rospy.ROSInterruptException:
         pass

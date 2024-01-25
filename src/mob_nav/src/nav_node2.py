@@ -3,6 +3,7 @@ import rospy
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry, Path
 from geometry_msgs.msg import Twist, Pose, PoseStamped
+import tf
 
 #from a_star import AStarPlanner
 
@@ -21,7 +22,9 @@ ROBOT_RADIUS = 15
 GX = -13
 GY = -3
 
-K = 0.1
+K = 1
+
+NXT = 10
 
 show_animation = True
 
@@ -40,6 +43,8 @@ class NavNode:
 
         self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
         self.path_publisher = rospy.Publisher('/path', Path, queue_size=10)
+
+        self.tf_listener = tf.TransformListener()
 
         # Initialize other variables or setup here
         self.grid = []
@@ -115,26 +120,37 @@ class NavNode:
     def odom_callback(self, data):
         # Process odometry data here
         # rospy.loginfo("Received odometry data")
-        now = rospy.get_rostime()
-        odom_y = data.pose.pose.position.x 
-        odom_x = - data.pose.pose.position.y 
+        # now = rospy.get_rostime()
+        # odom_y = data.pose.pose.position.y
+        # odom_x = data.pose.pose.position.x
 
-        if self.odom_time.secs > 0:
-            self.vel.linear.x = (odom_x - self.odom_x) / (self.odom_time.secs)
-            self.vel.linear.x = (odom_y - self.odom_y) / (self.odom_time.secs)
+        # if self.odom_time.secs > 0:
+        #     self.vel.linear.x = (odom_x - self.odom_x) / (self.odom_time.secs)
+        #     self.vel.linear.x = (odom_y - self.odom_y) / (self.odom_time.secs)
 
-        self.odom_x = odom_x
-        self.odom_y = odom_y
-        self.odom_rw = data.pose.pose.orientation.w
+        # self.odom_x = odom_x
+        # self.odom_y = odom_y
+        # self.odom_rw = data.pose.pose.orientation.w
+
+        # pose_msg = Pose()
+        # pose_msg.position.x = odom_x 
+        # pose_msg.position.y = odom_y 
+        # pose_msg.orientation.z = data.pose.pose.orientation.z
+        # pose_msg.orientation.w = self.odom_rw 
+        # self.pose_publisher.publish(pose_msg)
+
+        # self.odom_time = rospy.get_rostime() - now
+
+        (trans,rot) = self.tf_listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+        (roll,pitch,yaw) = tf.transformations.euler_from_quaternion(rot)
+        self.odom_x = trans[0]
+        self.odom_y = trans[1]
 
         pose_msg = Pose()
-        pose_msg.position.x = odom_x 
-        pose_msg.position.y = odom_y 
-        pose_msg.orientation.z = data.pose.pose.orientation.z
-        pose_msg.orientation.w = self.odom_rw 
+        pose_msg.position.x = self.odom_x 
+        pose_msg.position.y = self.odom_y 
+        pose_msg.orientation.w = yaw
         self.pose_publisher.publish(pose_msg)
-
-        self.odom_time = rospy.get_rostime() - now
 
     def main_planning(self):
         rospy.loginfo("Entering main planning")
@@ -143,8 +159,8 @@ class NavNode:
         # start and goal position
         #sx = self.odom_x  # [m]
         #sy = self.odom_y  # [m]
-        sx = self.odom_x/self.res 
-        sy = self.odom_y/self.res
+        sx = self.odom_x#/self.res 
+        sy = self.odom_y#/self.res
         gx = GX/self.res  # [m]
         gy = GY/self.res # [m]
         grid_size = CALC_RES # [m]
@@ -207,8 +223,8 @@ class NavNode:
             # print([x*self.res for x in self.rx[0:10]])
             # print([y*self.res for y in self.ry[0:10]])
 
-            v1 = self.vel.linear.x + K * (self.rx[1]*self.res - self.odom_x)
-            v2 = self.vel.linear.y + K * (self.ry[1]*self.res - self.odom_y)
+            v1 = K * (self.rx[NXT]*self.res - self.odom_x)
+            v2 = K * (self.ry[NXT]*self.res - self.odom_y)
 
             if v1>20 or v2>20:
                 v1 = 0
@@ -224,14 +240,14 @@ class NavNode:
         dist_y = 100
 
         if len(self.rx)>1:
-            dist_x = abs(self.odom_x-self.rx[1]*self.res)
-            dist_y = abs(self.odom_y-self.ry[1]*self.res)
+            dist_x = abs(self.odom_x-self.rx[NXT]*self.res)
+            dist_y = abs(self.odom_y-self.ry[NXT]*self.res)
 
             print("Current pose: ", self.odom_x, self.odom_y)
-            print("Target pose: ", self.rx[1]*self.res, self.ry[1]*self.res)
+            print("Target pose: ", self.rx[NXT]*self.res, self.ry[NXT]*self.res)
             print("Distance to next target: ",dist_x, dist_y)
 
-        if len(self.rx)>0 and dist_x<0.1 and dist_y<0.1:
+        if len(self.rx)>0 and dist_x<0.01 and dist_y<0.01:
             self.rx.pop(0)
             self.ry.pop(0)
 
