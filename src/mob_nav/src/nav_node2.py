@@ -68,6 +68,11 @@ class NavNode:
         self.rx = []
         self.ry = []
 
+        #ORIGINE MAP
+        self.orx = 0.0
+        self.ory = 0.0
+        self.orht = 0.0
+
     class Node_:
         cost = 0
         x = 0
@@ -105,6 +110,8 @@ class NavNode:
         self.og_width = data.info.width
         self.og_height = data.info.height
         grid_tmp = data.data
+        (self.orx,self.ory,self.orth) = data.origin
+        print("origine: \n x:",origin_x,"\n y: ", origin_y,"\n theta:",origin_th)
 
         self.res = data.info.resolution
 
@@ -153,7 +160,7 @@ class NavNode:
         self.pose_publisher.publish(pose_msg)
 
     def main_planning(self):
-        rospy.loginfo("Entering main planning")
+        #rospy.loginfo("Entering main planning")
         #print(__file__ + " start!!")
 
         # start and goal position
@@ -179,8 +186,8 @@ class NavNode:
         for x,row in enumerate(self.grid):
             for y,column in enumerate(row):
                 if column > 0:
-                    ox.append(y - 20/self.res)
-                    oy.append(x - 10/self.res) 
+                    ox.append(y - self.ory/self.res)
+                    oy.append(x - self.orx/self.res) 
         
         self.resolution = grid_size
         self.rr = robot_radius
@@ -267,7 +274,7 @@ class NavNode:
             rx: x position list of the final path
             ry: y position list of the final path
         """
-        rospy.loginfo("Entering path planning")
+        #rospy.loginfo("Entering path planning")
 
         start_node = self.Node_(self.calc_xy_index(sx, self.min_x),
                                self.calc_xy_index(sy, self.min_y), 0.0, -1)
@@ -363,7 +370,7 @@ class NavNode:
     
     @staticmethod
     def get_motion_model():
-        rospy.loginfo("Entering motion model")
+        #rospy.loginfo("Entering motion model")
         # dx, dy, cost
         motion = [[1, 0, 1],
                   [0, 1, 1],
@@ -378,7 +385,7 @@ class NavNode:
 
     def calc_obstacle_map(self, ox, oy):
         #self.get_logger().info('entering calc_obstacle_map()')
-        rospy.loginfo("Calculating obstacle map")
+        #rospy.loginfo("Calculating obstacle map")
 
         self.min_x = round(min(ox))
         self.min_y = round(min(oy))
