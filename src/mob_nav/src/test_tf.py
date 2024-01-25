@@ -12,10 +12,15 @@ if __name__ == '__main__':
     rospy.sleep(1)
     while not rospy.is_shutdown():
         try:
-            (trans,rot) = listener.lookupTransform('/base_link', '/map', rospy.Time(0))
+            (trans,rot) = listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
             rospy.sleep(2)
-            print("translation : \n",trans)
-            print("rotation : \n",rot)
+            tx = trans[0]
+            ty = trans[1]
+            tz = trans[2]
+            rw = rot[3]
+            
+            print("translation : \n sur x:",tx, "\n sur y:",ty,"\n sur z", tz)
+            print("rotation : \n",rw)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
     #Translation en [x,y,z]
