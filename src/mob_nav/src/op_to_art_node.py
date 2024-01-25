@@ -39,7 +39,10 @@ class VelNode:
             w = -math.pi - w
 
         twist_msg = Twist()
-        twist_msg.linear.x = r 
+        if r>0.05:
+            twist_msg.linear.x = 0.3
+        else:
+             twist_msg.linear.x = r
         twist_msg.angular.z = w
 
         print("Received command : ", cmd_x, cmd_y)

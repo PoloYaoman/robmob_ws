@@ -22,9 +22,9 @@ ROBOT_RADIUS = 15
 GX = -13
 GY = -3
 
-K = 1
+K = 0.5
 
-NXT = 10
+NXT = 2
 
 show_animation = True
 
@@ -90,7 +90,7 @@ class NavNode:
                 self.cost) + "," + str(self.parent_index)
 
     def timer_callback(self,timer):
-        rospy.loginfo("Entering timer callback")
+        # rospy.loginfo("Entering timer callback")
         # Example: Publish a sample Twist message
         twist_msg = Twist()
         twist_msg.linear.x = 0
@@ -100,7 +100,7 @@ class NavNode:
             twist_msg = self.main_planning()
 
         self.vel_cmd_publisher.publish(twist_msg)
-        rospy.loginfo("Exiting timer callback")
+        # rospy.loginfo("Exiting timer callback")
 
     def occupancy_grid_callback(self, data):
         # Process occupancy grid data here
@@ -110,8 +110,10 @@ class NavNode:
         self.og_width = data.info.width
         self.og_height = data.info.height
         grid_tmp = data.data
-        (self.orx,self.ory,self.orth) = data.origin
-        print("origine: \n x:",origin_x,"\n y: ", origin_y,"\n theta:",origin_th)
+        self.orx = data.info.origin.position.x
+        self.ory = data.info.origin.position.y
+        # self.orth = data.info.origin.orientation.w
+        print("origine: \n x:",self.orx,"\n y: ", self.ory)
 
         self.res = data.info.resolution
 
@@ -186,8 +188,11 @@ class NavNode:
         for x,row in enumerate(self.grid):
             for y,column in enumerate(row):
                 if column > 0:
-                    ox.append(y - self.ory/self.res)
-                    oy.append(x - self.orx/self.res) 
+                    ox.append(y + self.orx/self.res)
+                    oy.append(x + self.ory/self.res) 
+
+                    # ox.append(y)
+                    # oy.append(x) 
         
         self.resolution = grid_size
         self.rr = robot_radius
@@ -230,10 +235,10 @@ class NavNode:
             # print([x*self.res for x in self.rx[0:10]])
             # print([y*self.res for y in self.ry[0:10]])
 
-            v1 = K * (self.rx[NXT]*self.res - self.odom_x)
-            v2 = K * (self.ry[NXT]*self.res - self.odom_y)
+            v1 = K * (self.rx[NXT] - self.odom_x)
+            v2 = K * (self.ry[NXT] - self.odom_y)
 
-            if v1>20 or v2>20:
+            if v1>5 or v2>5:
                 v1 = 0
                 v2 = 0
 
@@ -247,14 +252,14 @@ class NavNode:
         dist_y = 100
 
         if len(self.rx)>1:
-            dist_x = abs(self.odom_x-self.rx[NXT]*self.res)
-            dist_y = abs(self.odom_y-self.ry[NXT]*self.res)
+            dist_x = abs(self.odom_x-self.rx[NXT])
+            dist_y = abs(self.odom_y-self.ry[NXT])
 
             print("Current pose: ", self.odom_x, self.odom_y)
-            print("Target pose: ", self.rx[NXT]*self.res, self.ry[NXT]*self.res)
+            print("Target pose: ", self.rx[NXT], self.ry[NXT])
             print("Distance to next target: ",dist_x, dist_y)
 
-        if len(self.rx)>0 and dist_x<0.01 and dist_y<0.01:
+        if len(self.rx)>0 and dist_x<0.2 and dist_y<0.2:
             self.rx.pop(0)
             self.ry.pop(0)
 
