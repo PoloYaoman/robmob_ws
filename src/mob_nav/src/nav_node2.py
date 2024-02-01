@@ -22,7 +22,7 @@ ROBOT_RADIUS = 15
 GX = -13
 GY = -3
 
-K = 0.5
+K = 0.3
 
 NXT = 2
 
@@ -64,6 +64,8 @@ class NavNode:
         self.odom_time = rospy.get_rostime()
 
         self.vel = Twist()
+        self.vel.linear.x = 0
+        self.vel.linear.y = 0
 
         self.rx = []
         self.ry = []
@@ -72,6 +74,8 @@ class NavNode:
         self.orx = 0.0
         self.ory = 0.0
         self.orht = 0.0
+
+        self.goal = False
 
     class Node_:
         cost = 0
@@ -96,9 +100,15 @@ class NavNode:
         twist_msg.linear.x = 0
         twist_msg.linear.y = 0
 
-        if len(self.grid)>0:
-            twist_msg = self.main_planning()
+        # if len(self.grid)>0:
+        twist_msg = self.main_planning()
 
+        if self.goal == True:
+            twist_msg.linear.x = 0
+            twist_msg.linear.y = 0
+            self.vel_cmd_publisher.publish(twist_msg)
+            raise SystemExit
+        
         self.vel_cmd_publisher.publish(twist_msg)
         #rospy.loginfo("Exiting timer callback")
 
@@ -262,6 +272,12 @@ class NavNode:
         if len(self.rx)>0 and dist_x<0.2 and dist_y<0.2:
             self.rx.pop(0)
             self.ry.pop(0)
+
+            if len(self.rx)<5:
+                self.goal = True
+
+        self.vel.linear.x = v1
+        self.vel.linear.y = v2
 
         return twist_msg
     
