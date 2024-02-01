@@ -34,6 +34,14 @@ nano ~/.bashrc
 export ROS_MASTER_URI=http://192.168.0.200:11311
 export ROS_IP=192.168.0.100
 
+synchronisation avec robot : sudo ntpdate 192.168.0.100
+
+PROTOCOLE: 1 bash in robot. 4 bashs dans le docker
 lancer dans le robot: roslaunch minilab_launch minilab_driver_hokuyo.launch
 lancer dans le docker: roslaunch teleop_pkg robot.launch
+    faire la map avec la teleoperation 
+sauvegarder la map : rosrun map_server map_saver -f nom_de_carte.yaml
+charger la map dans rviz : rosrun map_server map_server path/vers/maps
+lancer nav_node2 : rosrun mob_nav nav_node2.py
+lancer teleop : rosrun mob_nav op_to_art_node.py
 have fun
