@@ -2,7 +2,7 @@
 import rospy
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry, Path
-from geometry_msgs.msg import Twist, Pose, PoseStamped
+from geometry_msgs.msg import Twist, Pose, PoseStamped, PointStamped
 import tf
 
 #from a_star import AStarPlanner
@@ -19,9 +19,6 @@ GRID_SIZE = 1
 CALC_RES = 8
 ROBOT_RADIUS = 15
 
-GX = -13
-GY = -3
-
 K = 0.3
 
 NXT = 2
@@ -29,11 +26,20 @@ NXT = 2
 show_animation = True
 
 
+
 class NavNode:
     def __init__(self):
         rospy.init_node('nav_node', anonymous=True)
+        self.PUBPOINT = True
 
+        #GOAL POINT
+        self.GX = -13
+        self.GY = -3
+        
         # Subscribers
+        while self.PUBPOINT:
+            rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
+            continue
         rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
         rospy.Subscriber('/odom', Odometry, self.odom_callback)
 
@@ -93,6 +99,13 @@ class NavNode:
             return str(self.x) + "," + str(self.y) + "," + str(
                 self.cost) + "," + str(self.parent_index)
 
+    def point_callback(self,data):
+        if self.PUBPOINT == True:
+            self.GX = data.point.x
+            self.GY = data.point.y
+            self.PUBPOINT = False
+
+    
     def timer_callback(self,timer):
         #rospy.loginfo("Entering timer callback")
         # Example: Publish a sample Twist message
@@ -180,8 +193,8 @@ class NavNode:
         #sy = self.odom_y  # [m]
         sx = self.odom_x#/self.res 
         sy = self.odom_y#/self.res
-        gx = GX/self.res  # [m]
-        gy = GY/self.res # [m]
+        gx = self.GX/self.res  # [m]
+        gy = self.GY/self.res # [m]
         grid_size = CALC_RES # [m]
         robot_radius = ROBOT_RADIUS          # [m]
 
