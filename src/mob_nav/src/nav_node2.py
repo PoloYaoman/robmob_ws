@@ -19,7 +19,7 @@ GRID_SIZE = 1
 CALC_RES = 8
 ROBOT_RADIUS = 15
 
-K = 0.3
+K = 0.5
 
 NXT = 2
 
@@ -262,7 +262,7 @@ class NavNode:
             v1 = K * (self.rx[NXT] - self.odom_x)
             v2 = K * (self.ry[NXT] - self.odom_y)
 
-            if v1>5 or v2>5:
+            if abs(v1)>2 or abs(v2)>2:
                 v1 = 0
                 v2 = 0
 
