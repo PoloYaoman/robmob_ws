@@ -16,8 +16,8 @@ import time
 
 
 GRID_SIZE = 1
-CALC_RES = 8
-ROBOT_RADIUS = 15
+CALC_RES = 5
+ROBOT_RADIUS = 10
 
 K = 0.5
 
@@ -69,7 +69,13 @@ class NavNode:
         self.orht = 0.0
 
         self.goal = False
+        self.tf_listener = tf.TransformListener()
         
+        # Publisher
+        self.vel_cmd_publisher = rospy.Publisher('/cmd_vel_op', Twist, queue_size=10)
+        self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
+        self.path_publisher = rospy.Publisher('/path', Path, queue_size=10)
+
         # Subscribers
         rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
         while self.ODOM :
@@ -79,14 +85,10 @@ class NavNode:
             rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
             continue
 
-        # Publisher
-        self.vel_cmd_publisher = rospy.Publisher('/cmd_vel_op', Twist, queue_size=10)
+        #TIMER
         self.timer = rospy.Timer(rospy.Duration(0.01), self.timer_callback)
 
-        self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
-        self.path_publisher = rospy.Publisher('/path', Path, queue_size=10)
 
-        self.tf_listener = tf.TransformListener()
 
 
     class Node_:
@@ -107,8 +109,8 @@ class NavNode:
 
     def point_callback(self,data):
         if self.PUBPOINT == True:
-            self.GX = data.point.x
-            self.GY = data.point.y
+            self.GX = int(data.point.x)
+            self.GY = int(data.point.y)
             self.PUBPOINT = False
 
     
@@ -143,7 +145,7 @@ class NavNode:
         self.orx = data.info.origin.position.x
         self.ory = data.info.origin.position.y
         # self.orth = data.info.origin.orientation.w
-        print("origine: \n x:",self.orx,"\n y: ", self.ory)
+        #print("origine: \n x:",self.orx,"\n y: ", self.ory)
 
         self.res = data.info.resolution
 
