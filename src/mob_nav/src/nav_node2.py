@@ -35,22 +35,6 @@ class NavNode:
         #GOAL POINT
         self.GX = -13
         self.GY = -3
-        
-        # Subscribers
-        rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
-        rospy.Subscriber('/odom', Odometry, self.odom_callback)
-        while self.PUBPOINT:
-            rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
-            continue
-
-        # Publisher
-        self.vel_cmd_publisher = rospy.Publisher('/cmd_vel_op', Twist, queue_size=10)
-        self.timer = rospy.Timer(rospy.Duration(0.01), self.timer_callback)
-
-        self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
-        self.path_publisher = rospy.Publisher('/path', Path, queue_size=10)
-
-        self.tf_listener = tf.TransformListener()
 
         # Initialize other variables or setup here
         self.grid = []
@@ -82,6 +66,23 @@ class NavNode:
         self.orht = 0.0
 
         self.goal = False
+        
+        # Subscribers
+        rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
+        rospy.Subscriber('/odom', Odometry, self.odom_callback)
+        while self.PUBPOINT:
+            rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
+            continue
+
+        # Publisher
+        self.vel_cmd_publisher = rospy.Publisher('/cmd_vel_op', Twist, queue_size=10)
+        self.timer = rospy.Timer(rospy.Duration(0.01), self.timer_callback)
+
+        self.pose_publisher = rospy.Publisher('/c_pose', Pose, queue_size=10)
+        self.path_publisher = rospy.Publisher('/path', Path, queue_size=10)
+
+        self.tf_listener = tf.TransformListener()
+
 
     class Node_:
         cost = 0
