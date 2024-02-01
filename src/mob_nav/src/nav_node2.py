@@ -30,7 +30,10 @@ show_animation = True
 class NavNode:
     def __init__(self):
         rospy.init_node('nav_node', anonymous=True)
+        
+        #FLAGS
         self.PUBPOINT = True
+        self.ODOM = True
 
         #GOAL POINT
         self.GX = -13
@@ -69,7 +72,9 @@ class NavNode:
         
         # Subscribers
         rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
-        rospy.Subscriber('/odom', Odometry, self.odom_callback)
+        while self.ODOM :
+            rospy.Subscriber('/odom', Odometry, self.odom_callback)
+            continue
         while self.PUBPOINT:
             rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
             continue
@@ -185,6 +190,8 @@ class NavNode:
         pose_msg.position.y = self.odom_y 
         pose_msg.orientation.w = yaw
         self.pose_publisher.publish(pose_msg)
+        self.ODOM = False
+
 
     def main_planning(self):
         #rospy.loginfo("Entering main planning")
