@@ -3,7 +3,7 @@
 import rospy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
-rapport = 0.6
+rapport = 0.5
 
 def joystick_callback(data):
     # Créer un message Twist à partir des axes du joystick
