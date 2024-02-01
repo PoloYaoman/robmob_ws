@@ -24,12 +24,13 @@ K = 0.5
 NXT = 2
 
 show_animation = True
-PUBPOINT = True
+
 
 
 class NavNode:
     def __init__(self):
         rospy.init_node('nav_node', anonymous=True)
+        self.PUBPOINT = True
 
         # Subscribers
         rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
@@ -95,7 +96,7 @@ class NavNode:
                 self.cost) + "," + str(self.parent_index)
 
     def point_callback(self,data):
-        if PUBPOINT == True:
+        if self.PUBPOINT == True:
             self.GX = data.point.x
             self.GY = data.point.y
             PUBPOINT = False
