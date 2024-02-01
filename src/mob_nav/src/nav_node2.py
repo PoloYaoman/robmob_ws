@@ -24,6 +24,7 @@ K = 0.5
 NXT = 2
 
 show_animation = True
+PUBPOINT = True
 
 
 class NavNode:
@@ -32,6 +33,8 @@ class NavNode:
 
         # Subscribers
         rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
+        while PUBPOINT:
+            continue
         rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
         rospy.Subscriber('/odom', Odometry, self.odom_callback)
 
@@ -92,8 +95,11 @@ class NavNode:
                 self.cost) + "," + str(self.parent_index)
 
     def point_callback(self,data):
-        self.GX = data.point.x
-        self.GY = data.point.y
+        if PUBPOINT == True:
+            self.GX = data.point.x
+            self.GY = data.point.y
+            PUBPOINT = False
+
     
     def timer_callback(self,timer):
         #rospy.loginfo("Entering timer callback")
