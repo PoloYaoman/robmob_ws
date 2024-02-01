@@ -30,13 +30,18 @@ class VelNode:
         cmd_x = data.linear.x 
         cmd_y = data.linear.y 
 
-        r = math.sqrt(cmd_x**2 + cmd_y**2)
-        w_tmp = math.atan2(cmd_y, cmd_x) 
-        w = w_tmp - self.theta
-        if w>math.pi:
-            w = math.pi - w
-        elif w<-math.pi:
-            w = -math.pi - w
+        r = 0
+        w = 0
+        w_tmp = 0
+
+        if abs(cmd_x)>0.01 or abs(cmd_y)>0.01 :
+            r = math.sqrt(cmd_x**2 + cmd_y**2)
+            w_tmp = math.atan2(cmd_y, cmd_x) 
+            w = w_tmp - self.theta
+            if w>math.pi:
+                w = math.pi - w
+            elif w<-math.pi:
+                w = -math.pi - w
 
         twist_msg = Twist()
         if r>0.1:

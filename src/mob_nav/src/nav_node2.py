@@ -119,6 +119,7 @@ class NavNode:
         if self.goal == True:
             twist_msg.linear.x = 0
             twist_msg.linear.y = 0
+            # twist_msg.angular.w = 0
             self.vel_cmd_publisher.publish(twist_msg)
             raise SystemExit
         
