@@ -37,11 +37,11 @@ class NavNode:
         self.GY = -3
         
         # Subscribers
+        rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
+        rospy.Subscriber('/odom', Odometry, self.odom_callback)
         while self.PUBPOINT:
             rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
             continue
-        rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
-        rospy.Subscriber('/odom', Odometry, self.odom_callback)
 
         # Publisher
         self.vel_cmd_publisher = rospy.Publisher('/cmd_vel_op', Twist, queue_size=10)
