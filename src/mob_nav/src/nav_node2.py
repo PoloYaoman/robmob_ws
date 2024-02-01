@@ -32,9 +32,13 @@ class NavNode:
         rospy.init_node('nav_node', anonymous=True)
         self.PUBPOINT = True
 
+        #GOAL POINT
+        self.GX = -13
+        self.GY = -3
+        
         # Subscribers
-        rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
-        while PUBPOINT:
+        while self.PUBPOINT:
+            rospy.Subscriber("clicked_point", PointStamped, self.point_callback)
             continue
         rospy.Subscriber('/map', OccupancyGrid, self.occupancy_grid_callback)
         rospy.Subscriber('/odom', Odometry, self.odom_callback)
@@ -75,10 +79,6 @@ class NavNode:
         self.ory = 0.0
         self.orht = 0.0
 
-        #GOAL POINT
-        self.GX = -13
-        self.GY = -3
-
     class Node_:
         cost = 0
         x = 0
@@ -99,7 +99,7 @@ class NavNode:
         if self.PUBPOINT == True:
             self.GX = data.point.x
             self.GY = data.point.y
-            PUBPOINT = False
+            self.PUBPOINT = False
 
     
     def timer_callback(self,timer):
