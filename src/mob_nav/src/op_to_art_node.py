@@ -44,7 +44,7 @@ class VelNode:
                 w = -math.pi - w
 
         twist_msg = Twist()
-        # if r>0.1:
+        # if r>0.05:
         #     twist_msg.linear.x = 0.3
         # else:
         twist_msg.linear.x = r

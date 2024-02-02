@@ -16,10 +16,10 @@ import time
 
 
 GRID_SIZE = 1
-CALC_RES = 5
-ROBOT_RADIUS = 10
+CALC_RES = 3
+ROBOT_RADIUS = 6
 
-K = 0.5
+K = 0.3
 
 NXT = 2
 
@@ -109,8 +109,8 @@ class NavNode:
 
     def point_callback(self,data):
         if self.PUBPOINT == True:
-            self.GX = int(data.point.x)
-            self.GY = int(data.point.y)
+            self.GX = data.point.x
+            self.GY = data.point.y
             self.PUBPOINT = False
 
     
@@ -145,7 +145,7 @@ class NavNode:
         self.orx = data.info.origin.position.x
         self.ory = data.info.origin.position.y
         # self.orth = data.info.origin.orientation.w
-        #print("origine: \n x:",self.orx,"\n y: ", self.ory)
+        print("origine: \n x:",self.orx,"\n y: ", self.ory)
 
         self.res = data.info.resolution
 
@@ -202,8 +202,8 @@ class NavNode:
         # start and goal position
         #sx = self.odom_x  # [m]
         #sy = self.odom_y  # [m]
-        sx = self.odom_x#/self.res 
-        sy = self.odom_y#/self.res
+        sx = self.odom_x/self.res 
+        sy = self.odom_y/self.res
         gx = self.GX/self.res  # [m]
         gy = self.GY/self.res # [m]
         grid_size = CALC_RES # [m]
@@ -297,7 +297,7 @@ class NavNode:
             self.rx.pop(0)
             self.ry.pop(0)
 
-            if len(self.rx)<5:
+            if len(self.rx)<3:
                 self.goal = True
 
         self.vel.linear.x = v1
